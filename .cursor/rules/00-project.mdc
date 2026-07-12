@@ -1,0 +1,132 @@
+# Cursor Rule: Project Foundation
+
+Applies To: Entire Repository
+
+Priority: Highest
+
+---
+
+## Project
+
+Project Name: PrivateConnect
+
+Version: 1.0 MVP
+
+Architecture: MERN Stack
+
+Users Supported: 100
+
+---
+
+## Objective
+
+Build a production-ready private communication platform.
+
+The project must be modular, secure, maintainable, and fully documented.
+
+---
+
+## Core Stack
+
+Frontend
+* React
+* Vite
+* Tailwind CSS
+
+Backend
+* Node.js
+* Express.js
+
+Database
+* MongoDB Atlas
+
+Realtime
+* Socket.io
+
+Media
+* WebRTC
+
+Deployment
+* Vercel
+* Render
+
+---
+
+## Before Writing Code
+
+Always read:
+* docs/01_AI_MEMORY.md
+* docs/03_PROJECT_RULES.md
+* docs/19_PROJECT_PROGRESS.md
+* docs/21_TODO.md
+
+Never start implementation without checking project progress.
+
+---
+
+## Project Rules
+
+Never change architecture without approval.
+Never install unnecessary dependencies.
+Never remove working code.
+Never ignore documentation.
+Never commit secrets.
+Always update documentation after implementing a feature.
+
+---
+
+## Coding Rules
+
+Use JavaScript.
+Use functional React components.
+Controllers must remain thin.
+Business logic belongs in services.
+Create reusable components.
+Create reusable middleware.
+Create reusable utilities.
+
+---
+
+## Security
+
+Use JWT.
+Hash Secret Codes.
+Validate all input.
+Enable Helmet.
+Enable CORS.
+Enable Rate Limiting.
+Never expose sensitive data.
+
+---
+
+## MVP Scope
+
+Allowed
+* Secret Code Authentication
+* Username Setup
+* One-to-One Chat
+* Voice Call
+* Video Call
+* Admin Dashboard
+
+Not Allowed
+* Group Chat
+* Group Calls
+* File Sharing
+* Push Notifications
+* Mobile Apps
+* End-to-end Encryption
+
+---
+
+## End Of Every Task
+
+Before finishing:
+* Verify code compiles.
+* Verify no obvious runtime errors.
+* Update PROJECT_PROGRESS.md.
+* Update CHANGELOG.md.
+* Update TODO.md if necessary.
+* Summarize implemented work.
+
+This rule is mandatory.

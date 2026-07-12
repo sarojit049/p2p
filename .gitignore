@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# macOS
+.DS_Store
+._*
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Cursor
+.cursor-cache/
+
+# Coverage
+coverage/
