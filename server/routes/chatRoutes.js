@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 
 const chatController = require('../controllers/chatController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const uploadMiddleware = require('../middlewares/uploadMiddleware');
 const { sendMessageValidator } = require('../validators/chatValidator');
 
 const chatRateLimiter = rateLimit({
@@ -21,6 +22,9 @@ router.use(authMiddleware);
 
 // POST /api/v1/chat/send
 router.post('/send', chatRateLimiter, sendMessageValidator, chatController.sendMessage);
+
+// POST /api/v1/chat/upload
+router.post('/upload', chatRateLimiter, uploadMiddleware.array('files', 10), chatController.uploadFiles);
 
 // GET /api/v1/chat/conversations
 router.get('/conversations', chatController.getRecentConversations);

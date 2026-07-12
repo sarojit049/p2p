@@ -76,7 +76,6 @@ const loginWithSecretCode = async (secretCode) => {
   // Create a placeholder user record without a username
   // Username will be set in the /users/username step
   const newUser = await User.create({
-    username: null,
     secretCodeId: matchedCode._id,
     role: 'user',
     status: 'active',

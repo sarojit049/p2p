@@ -20,14 +20,23 @@ const chatSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: [true, 'Message is required.'],
       trim: true,
       maxlength: [5000, 'Message cannot exceed 5000 characters.'],
+      // Required is removed because media messages might not have text
     },
     messageType: {
       type: String,
-      enum: ['text'],
+      enum: ['text', 'image', 'video', 'audio', 'document', 'zip'],
       default: 'text',
+    },
+    fileName: String,
+    originalName: String,
+    mimeType: String,
+    fileSize: Number,
+    fileUrl: String,
+    duration: {
+      type: Number,
+      default: null,
     },
     isRead: {
       type: Boolean,

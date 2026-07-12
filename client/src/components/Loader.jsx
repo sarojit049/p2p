@@ -1,8 +1,5 @@
-/**
- * Loader Component
- * Spinner for loading states.
- * Per 09_UI_UX_SPECIFICATION.md — Loading States
- */
+import { cn } from '../lib/utils';
+
 const Loader = ({ size = 'md', className = '' }) => {
   const sizes = {
     sm: 'h-4 w-4 border-2',
@@ -15,7 +12,11 @@ const Loader = ({ size = 'md', className = '' }) => {
     <div
       role="status"
       aria-label="Loading"
-      className={`rounded-full border-blue-600 border-t-transparent animate-spin ${sizes[size]} ${className}`}
+      className={cn(
+        "rounded-full border-blue-600 dark:border-blue-500 border-t-transparent dark:border-t-transparent animate-spin",
+        sizes[size],
+        className
+      )}
     />
   );
 };

@@ -11,7 +11,7 @@ const logger = require('../utils/logger');
  * Set username for a user (first-time setup after Secret Code login).
  * Validates uniqueness and format rules from 05_DATABASE_DESIGN.md.
  */
-const createUsername = async (userId, username) => {
+const createUsername = async (userId, username, displayName, avatar) => {
   const trimmed = username.trim();
 
   // Check uniqueness
@@ -25,7 +25,11 @@ const createUsername = async (userId, username) => {
 
   const user = await User.findByIdAndUpdate(
     userId,
-    { username: trimmed },
+    { 
+      username: trimmed,
+      displayName: displayName ? displayName.trim() : null,
+      profileImage: avatar ? avatar.trim() : null
+    },
     { new: true, runValidators: true }
   );
 

@@ -30,6 +30,10 @@ router.get('/dashboard', adminController.getDashboard);
 // Secret Codes
 router.post('/secret-codes', adminController.generateSecretCode);
 router.get('/secret-codes', adminController.listSecretCodes);
+router.delete('/secret-codes/:id', adminController.revokeSecretCode);
+
+// Logs
+router.get('/logs', adminController.getAdminLogs);
 
 // Users
 router.get('/users', adminController.listUsers);

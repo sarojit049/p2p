@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, 'Username is required.'],
+      sparse: true,
       unique: true,
       trim: true,
       minlength: [3, 'Username must be at least 3 characters.'],
@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema(
     secretCodeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'SecretCode',
+      default: null,
+    },
+    displayName: {
+      type: String,
+      trim: true,
       default: null,
     },
     role: {
@@ -48,7 +53,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes per 05_DATABASE_DESIGN.md
-userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ username: 1 }, { unique: true, sparse: true });
 userSchema.index({ role: 1 });
 userSchema.index({ status: 1 });
 

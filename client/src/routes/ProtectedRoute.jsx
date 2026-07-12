@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Loader from '../components/Loader';
 import { ROUTES } from '../constants';
@@ -9,7 +9,8 @@ import { ROUTES } from '../constants';
  * Redirects new users without a username to username setup.
  */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading, user } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -23,12 +24,17 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
+  // Admins shouldn't be in normal user routes
+  if (isAdmin) {
+    return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
+  }
+
   // New user hasn't set their username yet
-  if (!user?.username && window.location.pathname !== ROUTES.USERNAME_SETUP) {
+  if (!user?.username && location.pathname !== ROUTES.USERNAME_SETUP) {
     return <Navigate to={ROUTES.USERNAME_SETUP} replace />;
   }
 
-  return children;
+  return children ? children : <Outlet />;
 };
 
 export default ProtectedRoute;

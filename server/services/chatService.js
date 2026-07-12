@@ -47,6 +47,54 @@ const sendMessage = async (senderId, receiverId, message) => {
 };
 
 /**
+ * Save a media message from one user to another.
+ * Validates receiver exists.
+ * Maps mimetype to messageType.
+ */
+const saveMediaMessage = async (senderId, receiverId, fileData) => {
+  const receiver = await User.findById(receiverId).select('_id status username');
+  if (!receiver) {
+    const error = new Error('Recipient not found.');
+    error.statusCode = 404;
+    error.code = 'USER_002';
+    throw error;
+  }
+
+  if (receiver.status === 'blocked' || receiver.status === 'inactive') {
+    const error = new Error('Cannot send message to this user.');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Determine messageType from mimetype
+  let messageType = 'document';
+  const mime = fileData.mimeType.toLowerCase();
+  
+  if (mime.startsWith('image/')) messageType = 'image';
+  else if (mime.startsWith('video/')) messageType = 'video';
+  else if (mime.startsWith('audio/')) messageType = 'audio';
+  else if (mime.includes('zip')) messageType = 'zip';
+
+  const newMessage = await Chat.create({
+    senderId,
+    receiverId,
+    messageType,
+    fileName: fileData.fileName,
+    originalName: fileData.originalName,
+    mimeType: fileData.mimeType,
+    fileSize: fileData.fileSize,
+    fileUrl: fileData.fileUrl,
+    duration: fileData.duration || null,
+    isRead: false,
+  });
+
+  return newMessage.populate([
+    { path: 'senderId', select: 'username profileImage' },
+    { path: 'receiverId', select: 'username profileImage' },
+  ]);
+};
+
+/**
  * Get conversation between two users with pagination.
  * Default page size: 30 messages.
  */
@@ -112,6 +160,7 @@ const getRecentConversations = async (userId) => {
 
 module.exports = {
   sendMessage,
+  saveMediaMessage,
   getConversation,
   markAsRead,
   getRecentConversations,

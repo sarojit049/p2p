@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTES } from '../constants';
 
@@ -6,12 +6,12 @@ import { ROUTES } from '../constants';
  * PublicRoute
  * Redirects already-authenticated users away from login screens.
  */
-const PublicRoute = ({ children, adminOnly = false }) => {
+const PublicRoute = ({ children }) => {
   const { isAuthenticated, isAdmin, user } = useAuth();
 
   if (isAuthenticated) {
-    if (adminOnly) {
-      return isAdmin ? <Navigate to={ROUTES.ADMIN_DASHBOARD} replace /> : children;
+    if (isAdmin) {
+      return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
     }
     if (!user?.username) {
       return <Navigate to={ROUTES.USERNAME_SETUP} replace />;
@@ -19,7 +19,7 @@ const PublicRoute = ({ children, adminOnly = false }) => {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
-  return children;
+  return children ? children : <Outlet />;
 };
 
 export default PublicRoute;

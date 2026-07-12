@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Loader from '../components/Loader';
 import { ROUTES } from '../constants';
@@ -26,7 +26,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
-  return children;
+  return children ? children : <Outlet />;
 };
 
 export default AdminRoute;

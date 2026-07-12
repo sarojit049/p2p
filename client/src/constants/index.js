@@ -1,12 +1,19 @@
 // Route paths
 export const ROUTES = {
-  LOGIN: '/',
-  USERNAME_SETUP: '/setup',
+  LOGIN: '/login',
+  USERNAME_SETUP: '/setup-username',
   DASHBOARD: '/dashboard',
   CHAT: '/chat/:userId',
+  CALL: '/call/:userId',
   PROFILE: '/profile',
   ADMIN_LOGIN: '/admin/login',
   ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_SECRET_CODES: '/admin/secret-codes',
+  ADMIN_CHATS: '/admin/chats',
+  ADMIN_CALLS: '/admin/calls',
+  ADMIN_LOGS: '/admin/logs',
+  ADMIN_SETTINGS: '/admin/settings',
   NOT_FOUND: '/404',
 };
 

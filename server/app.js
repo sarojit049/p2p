@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 // Config
 const validateEnv = require('./config/env');
@@ -24,7 +25,9 @@ const app = express();
 // ----------------------------------------------------------------
 // Security Headers — Per 13_SECURITY_POLICY.md section 12
 // ----------------------------------------------------------------
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // ----------------------------------------------------------------
 // CORS — Per 13_SECURITY_POLICY.md section 13
@@ -62,10 +65,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // ----------------------------------------------------------------
-// Body Parsers
+// Body Parsers & Static Files
 // ----------------------------------------------------------------
 app.use(express.json({ limit: '10kb' })); // Limit payload size
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ----------------------------------------------------------------
 // Global Rate Limiter — Per 13_SECURITY_POLICY.md section 11
@@ -107,7 +113,7 @@ app.use('/api/v1/admin', adminRoutes);
 // ----------------------------------------------------------------
 // 404 Handler for undefined routes
 // ----------------------------------------------------------------
-app.use('*', (req, res) => {
+app.use((req, res, next) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found.`,

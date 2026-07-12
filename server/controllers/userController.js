@@ -16,13 +16,15 @@ const createUsername = async (req, res, next) => {
       return sendError(res, 422, 'Validation failed.', errors.array());
     }
 
-    const { username } = req.body;
-    const user = await userService.createUsername(req.user._id, username);
+    const { username, displayName, avatar } = req.body;
+    const user = await userService.createUsername(req.user._id, username, displayName, avatar);
 
     return sendSuccess(res, 200, 'Username created successfully.', {
       user: {
         _id: user._id,
         username: user.username,
+        displayName: user.displayName,
+        profileImage: user.profileImage,
         role: user.role,
         status: user.status,
       },

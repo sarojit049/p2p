@@ -65,7 +65,7 @@ const blockUser = async (req, res, next) => {
   try {
     // Pass socketManager from app locals if available
     const socketManager = req.app.locals.socketManager;
-    const user = await adminService.blockUser(req.params.id, socketManager);
+    const user = await adminService.blockUser(req.params.id, req.user._id, socketManager);
     return sendSuccess(res, 200, 'User blocked.', {
       user: { _id: user._id, username: user.username, status: user.status },
     });
@@ -76,7 +76,7 @@ const blockUser = async (req, res, next) => {
 
 const unblockUser = async (req, res, next) => {
   try {
-    const user = await adminService.unblockUser(req.params.id);
+    const user = await adminService.unblockUser(req.params.id, req.user._id);
     return sendSuccess(res, 200, 'User unblocked.', {
       user: { _id: user._id, username: user.username, status: user.status },
     });
@@ -87,7 +87,7 @@ const unblockUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    await adminService.deleteUser(req.params.id);
+    await adminService.deleteUser(req.params.id, req.user._id);
     return sendSuccess(res, 200, 'User and related data deleted successfully.');
   } catch (error) {
     next(error);
@@ -100,6 +100,26 @@ const listSecretCodes = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 20;
     const result = await adminService.listSecretCodes(page, limit);
     return sendSuccess(res, 200, 'Secret codes retrieved.', result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const revokeSecretCode = async (req, res, next) => {
+  try {
+    await adminService.revokeSecretCode(req.params.id, req.user._id);
+    return sendSuccess(res, 200, 'Secret code revoked successfully.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminLogs = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const result = await adminService.getAdminLogs(page, limit);
+    return sendSuccess(res, 200, 'Admin logs retrieved.', result);
   } catch (error) {
     next(error);
   }
@@ -151,6 +171,8 @@ module.exports = {
   unblockUser,
   deleteUser,
   listSecretCodes,
+  revokeSecretCode,
+  getAdminLogs,
   getDashboard,
   getChatHistory,
   getCallHistory,

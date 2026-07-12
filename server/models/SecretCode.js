@@ -9,6 +9,10 @@ const mongoose = require('mongoose');
  */
 const secretCodeSchema = new mongoose.Schema(
   {
+    plainCode: {
+      type: String,
+      default: null,
+    },
     secretCodeHash: {
       type: String,
       required: [true, 'Secret code hash is required.'],

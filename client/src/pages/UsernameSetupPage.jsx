@@ -17,6 +17,8 @@ const UsernameSetupPage = () => {
   const { updateUser } = useAuth();
 
   const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [avatar, setAvatar] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +45,7 @@ const UsernameSetupPage = () => {
     setError('');
 
     try {
-      const response = await createUsername(username.trim());
+      const response = await createUsername(username.trim(), displayName.trim(), avatar.trim());
       const { user } = response.data.data;
       updateUser(user);
       navigate(ROUTES.DASHBOARD, { replace: true });
@@ -82,7 +84,7 @@ const UsernameSetupPage = () => {
             <div className="space-y-4">
               <Input
                 id="username"
-                label="Username"
+                label="Username (Required)"
                 type="text"
                 placeholder="e.g. john_doe"
                 value={username}
@@ -91,6 +93,26 @@ const UsernameSetupPage = () => {
                 helperText="3–30 characters. Letters, numbers, and underscores only."
                 required
                 autoComplete="username"
+              />
+
+              <Input
+                id="displayName"
+                label="Display Name (Optional)"
+                type="text"
+                placeholder="e.g. John Doe"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                autoComplete="name"
+              />
+
+              <Input
+                id="avatar"
+                label="Avatar URL (Optional)"
+                type="url"
+                placeholder="https://example.com/avatar.jpg"
+                value={avatar}
+                onChange={(e) => setAvatar(e.target.value)}
+                helperText="Paste a link to an image file."
               />
 
               <Button

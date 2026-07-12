@@ -4,6 +4,7 @@ const SecretCode = require('../models/SecretCode');
 const User = require('../models/User');
 const Chat = require('../models/Chat');
 const Call = require('../models/Call');
+const AdminLog = require('../models/AdminLog');
 const authService = require('./authService');
 const logger = require('../utils/logger');
 
@@ -76,9 +77,18 @@ const generateSecretCode = async (adminUserId) => {
   const hash = await bcrypt.hash(plainCode, authService.BCRYPT_ROUNDS);
 
   const secretCode = await SecretCode.create({
+    plainCode,
     secretCodeHash: hash,
     generatedBy: adminUserId,
     isUsed: false,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiry
+  });
+
+  await AdminLog.create({
+    adminId: adminUserId,
+    action: 'GENERATE_SECRET_CODE',
+    description: `Generated a new secret code.`,
+    targetId: secretCode._id,
   });
 
   logger.info(`Secret Code generated. ID: ${secretCode._id}`);
@@ -124,7 +134,7 @@ const getUserById = async (userId) => {
 /**
  * Block a user and disconnect their socket if active.
  */
-const blockUser = async (userId, socketManager) => {
+const blockUser = async (userId, adminId, socketManager) => {
   const user = await User.findByIdAndUpdate(
     userId,
     { status: 'blocked' },
@@ -143,6 +153,13 @@ const blockUser = async (userId, socketManager) => {
     socketManager.disconnectUser(userId.toString());
   }
 
+  await AdminLog.create({
+    adminId,
+    action: 'BLOCK_USER',
+    description: `Blocked user ${user.username}.`,
+    targetId: user._id,
+  });
+
   logger.info(`User blocked. UserID: ${userId}`);
   return user;
 };
@@ -150,7 +167,7 @@ const blockUser = async (userId, socketManager) => {
 /**
  * Unblock a user.
  */
-const unblockUser = async (userId) => {
+const unblockUser = async (userId, adminId) => {
   const user = await User.findByIdAndUpdate(
     userId,
     { status: 'active' },
@@ -164,6 +181,13 @@ const unblockUser = async (userId) => {
     throw error;
   }
 
+  await AdminLog.create({
+    adminId,
+    action: 'UNBLOCK_USER',
+    description: `Unblocked user ${user.username}.`,
+    targetId: user._id,
+  });
+
   logger.info(`User unblocked. UserID: ${userId}`);
   return user;
 };
@@ -171,7 +195,7 @@ const unblockUser = async (userId) => {
 /**
  * Delete a user and their related data.
  */
-const deleteUser = async (userId) => {
+const deleteUser = async (userId, adminId) => {
   const user = await User.findById(userId);
 
   if (!user) {
@@ -201,6 +225,13 @@ const deleteUser = async (userId) => {
   // Delete user
   await User.findByIdAndDelete(userId);
 
+  await AdminLog.create({
+    adminId,
+    action: 'DELETE_USER',
+    description: `Deleted user ${user.username}.`,
+    targetId: user._id,
+  });
+
   logger.info(`User deleted. UserID: ${userId}`);
 };
 
@@ -210,7 +241,7 @@ const deleteUser = async (userId) => {
 const listSecretCodes = async (page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
   const codes = await SecretCode.find()
-    .select('_id isUsed assignedUser createdAt')
+    .select('_id plainCode isUsed assignedUser createdAt')
     .populate('assignedUser', 'username status')
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -218,6 +249,51 @@ const listSecretCodes = async (page = 1, limit = 20) => {
 
   const total = await SecretCode.countDocuments();
   return { codes, total, page, limit };
+};
+
+/**
+ * Revoke/Delete an unused Secret Code
+ */
+const revokeSecretCode = async (codeId, adminId) => {
+  const code = await SecretCode.findById(codeId);
+  
+  if (!code) {
+    const error = new Error('Secret code not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+  
+  if (code.isUsed) {
+    const error = new Error('Cannot revoke a used secret code.');
+    error.statusCode = 400;
+    throw error;
+  }
+  
+  await SecretCode.findByIdAndDelete(codeId);
+  
+  await AdminLog.create({
+    adminId,
+    action: 'REVOKE_SECRET_CODE',
+    description: `Revoked secret code ${codeId}.`,
+    targetId: codeId,
+  });
+  
+  logger.info(`Secret code revoked: ${codeId}`);
+};
+
+/**
+ * Get Admin Logs
+ */
+const getAdminLogs = async (page = 1, limit = 50) => {
+  const skip = (page - 1) * limit;
+  const logs = await AdminLog.find()
+    .populate('adminId', 'username')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const total = await AdminLog.countDocuments();
+  return { logs, total, page, limit };
 };
 
 /**
@@ -300,6 +376,8 @@ module.exports = {
   unblockUser,
   deleteUser,
   listSecretCodes,
+  revokeSecretCode,
+  getAdminLogs,
   getDashboardStats,
   getChatHistory,
   getCallHistory,
